@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
 import 'package:vehicles_prep/components/loader_component.dart';
+import 'package:vehicles_prep/helpers/constans.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
 import 'dart:convert';
+
+import 'package:vehicles_prep/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -126,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.resolveWith<Color>(
               (Set<MaterialState> states) {
-                  return Colors.blue;
+                  return Color(0xFF4DD637);
               },
             ),
           ),
@@ -139,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.resolveWith<Color>(
               (Set<MaterialState> states) {
-                  return Colors.green;
+                  return Color(0xFF23C4ED);
               },
             ),
           ),
@@ -168,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
       'password' : _password
     };
 
-    var url = Uri.parse('https://vehicleszulu.azurewebsites.net/api/Account/CreateToken');
+    var url = Uri.parse('${Constans.apiUrl}/api/Account/CreateToken');
     var response = await http.post(
       url,
       headers: {
@@ -190,11 +193,15 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    var body = response.body;
-    var decodedJson = jsonDecode(body);
-    var tokenHub = TokenHub.fromJson(decodedJson);
-    print(tokenHub.token);
-    
+    String body = response.body;
+    dynamic decodedJson = jsonDecode(body);
+    TokenHub tokenHub = TokenHub.fromJson(decodedJson);
+    Navigator.pushReplacement(
+      context, 
+      MaterialPageRoute(
+        builder: (context) => HomeScreen(tokenHub: tokenHub)
+      )
+    );
  }
 
   bool _validateFields() {
