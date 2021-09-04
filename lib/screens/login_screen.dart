@@ -1,5 +1,9 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:email_validator/email_validator.dart';
+import 'package:vehicles_prep/components/loader_component.dart';
+import 'package:vehicles_prep/hubs/token_hub.dart';
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -9,29 +13,35 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String _email = '';
+  String _email = 'luis@yopmail.com';
   String _emailError = '';
   bool _emailShowError = false;  
 
-  String _password = '';
+  String _password = '123456';
   String _passwordError = '';
   bool _passwordShowError = false;
   bool _passwordShow = false;
 
+  bool _showLoader = false;
   bool _rememberme = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
         children: <Widget>[
-          _showLogo(),
-          SizedBox(height: 20,),
-          _showEmail(),
-          _showPassword(),
-          _showRememberme(),
-          _showButtons(),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _showLogo(),
+              SizedBox(height: 20,),
+              _showEmail(),
+              _showPassword(),
+              _showRememberme(),
+              _showButtons(),
+            ],
+          ),
+          _showLoader ? LoaderComponent(text: 'Por favor espere...') : Container(),
         ],
       ),
     );
@@ -140,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login() {
+  void _login() async {
     setState(() {
       _passwordShow = false;
     });
@@ -148,19 +158,56 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_validateFields()) {
       return;
     }
-  }
+
+    setState(() {
+      _showLoader = true;
+    });
+
+    Map<String, dynamic> request = {
+      'username' : _email,
+      'password' : _password
+    };
+
+    var url = Uri.parse('https://vehicleszulu.azurewebsites.net/api/Account/CreateToken');
+    var response = await http.post(
+      url,
+      headers: {
+        'content-type' : 'application/json',
+        'accept' : 'application/json',
+      }, 
+      body: jsonEncode(request)
+    );
+
+    setState(() {
+      _showLoader = false;
+    });
+
+    if (response.statusCode >= 400) {
+      setState(() {
+        _passwordShowError = true;
+        _passwordError = 'Email o contraseña no válidos.';
+      });
+      return;
+    }
+
+    var body = response.body;
+    var decodedJson = jsonDecode(body);
+    var tokenHub = TokenHub.fromJson(decodedJson);
+    print(tokenHub.token);
+    
+ }
 
   bool _validateFields() {
-    bool hasErrors = false;
+    bool isValid = true;
 
     if (_email.isEmpty) {
       _emailShowError = true;
       _emailError = 'Debes ingresar tu correo.';
-      hasErrors = true;
+      isValid = false;
     } else if (!EmailValidator.validate(_email)){
       _emailShowError = true;
       _emailError = 'Debes ingresar un correo válido.';
-      hasErrors = true;
+      isValid = false;
     } else {  
       _emailShowError = false;
     }
@@ -168,12 +215,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_password.isEmpty) {
       _passwordShowError = true;
       _passwordError = 'Debes ingresar tu contraseña.';
-      hasErrors = true;
+      isValid = false;
     } else {  
       _passwordShowError = false;
     }
 
     setState(() { });
-    return hasErrors;
+    return isValid;
   }
 }
