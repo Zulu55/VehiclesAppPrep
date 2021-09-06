@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vehicles_prep/helpers/constans.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
 import 'package:vehicles_prep/screens/login_screen.dart';
+import 'package:vehicles_prep/screens/procedures_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final TokenHub tokenHub;
@@ -66,7 +67,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ListTile(
             leading: Icon(Icons.precision_manufacturing),
             title: const Text('Procedimientos'),
-            onTap: () { },
+            onTap: () { 
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => ProceduresScreen(tokenHub: widget.tokenHub)
+                )
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.badge),
