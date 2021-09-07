@@ -122,34 +122,42 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _showButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-                  return Color(0xFF4DD637);
-              },
+    return Container(
+      margin: EdgeInsets.all(10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Expanded(
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                      return Color(0xFF4DD637);
+                  },
+                ),
+              ),
+              child: Text('Iniciar Sesión'),
+              onPressed: () {
+                _login();
+              }, 
             ),
           ),
-          child: Text('Iniciar Sesión'),
-          onPressed: () {
-            _login();
-          }, 
-        ),
-        ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-                  return Color(0xFF23C4ED);
-              },
+          SizedBox(width: 10,),
+          Expanded(
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                      return Color(0xFF23C4ED);
+                  },
+                ),
+              ),
+              child: Text('Nuevo Usuario'),
+              onPressed: () {}, 
             ),
           ),
-          child: Text('Registrar Nuevo Usuario'),
-          onPressed: () {}, 
-        ),
-      ],
+        ],
+      ),
     );
   }
 
