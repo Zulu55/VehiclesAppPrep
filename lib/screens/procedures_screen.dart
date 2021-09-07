@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:vehicles_prep/components/loader_component.dart';
 
+import 'package:vehicles_prep/components/loader_component.dart';
 import 'package:vehicles_prep/helpers/constans.dart';
 import 'package:vehicles_prep/hubs/procedure_hub.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
+import 'package:vehicles_prep/screens/procedure_screen.dart';
 
 class ProceduresScreen extends StatefulWidget {
   final TokenHub tokenHub;
@@ -36,7 +37,17 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
       body: _isLoading ? LoaderComponent(text: 'Por favor espere...') : _getContent(),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {  },
+        onPressed: () {  
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => ProcedureScreen(
+                    tokenHub: widget.tokenHub, 
+                    procedure: Procedure(description: '', id: 0, price: 0, ),
+                  )
+                )
+              );
+        },
       ),
     );
   }
@@ -69,14 +80,15 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
         return Card(
           child: InkWell(
             onTap: () {
-              // Navigator.push(
-              //   context, 
-              //   MaterialPageRoute(
-              //     builder: (context) => ExerciseScreen(
-              //       exercise: e,
-              //     )
-              //   )
-              // );
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => ProcedureScreen(
+                    tokenHub: widget.tokenHub, 
+                    procedure: e,
+                  )
+                )
+              );
             },
             child: Hero(
               tag: e.id,
@@ -127,7 +139,7 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
           fontWeight: FontWeight.bold
         ),
       ),
-    );  
+    );
   }
 
   Widget _getContent() {
