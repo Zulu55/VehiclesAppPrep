@@ -135,7 +135,7 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
                 ),
               ),
               child: Text('Eliminar'),
-              onPressed: () {}, 
+              onPressed: () => _confirmDelete(), 
             ),
           ),
         ],
@@ -240,6 +240,58 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
         'authorization': 'bearer ${widget.tokenHub.token}',
       }, 
       body: jsonEncode(request)
+    );
+
+    setState(() {
+      _showLoader = false;
+    });
+
+    if (response.statusCode >= 400) {
+      String error = response.body;
+      await showAlertDialog(
+        context: context,
+        title: 'Error', 
+        message: error,
+        actions: <AlertDialogAction>[
+            AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );    
+      return;
+    }
+
+    Navigator.pop(context);
+  }
+
+  void _confirmDelete() async {
+      var response = await showAlertDialog(
+        context: context,
+        title: 'Confirmación', 
+        message: '¿Estas seguro de querer borrar el regitro?',
+        actions: <AlertDialogAction>[
+            AlertDialogAction(key: 'yes', label: 'Yes'),
+            AlertDialogAction(key: 'no', label: 'No'),
+        ]
+      );    
+
+      if (response == 'yes') {
+        _deleteRecord();
+      }
+
+  }
+
+  void _deleteRecord() async {
+    setState(() {
+      _showLoader = true;
+    });
+
+    var url = Uri.parse('${Constans.apiUrl}/api/Procedures/${widget.procedure.id}');
+    var response = await http.delete(
+      url,
+      headers: {
+        'content-type' : 'application/json',
+        'accept' : 'application/json',
+        'authorization': 'bearer ${widget.tokenHub.token}',
+      }, 
     );
 
     setState(() {
