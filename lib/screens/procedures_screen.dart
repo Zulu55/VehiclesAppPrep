@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -52,7 +53,7 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
     );
   }
 
-  void _getProcedures() async {
+  Future<Null> _getProcedures() async {
     var url = Uri.parse('${Constans.apiUrl}/api/Procedures');
     var response = await http.get(
       url,
@@ -64,6 +65,19 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
     );
 
     String body = response.body;
+    if (response.statusCode >= 400) {
+      await showAlertDialog(
+        context: context,
+        title: 'Error', 
+        message: body,
+        actions: <AlertDialogAction>[
+            AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );    
+      return;
+    }
+
+    _procedures = [];
     dynamic decodedJson = jsonDecode(body);
     if (decodedJson != null) {
       for (var item in decodedJson) {
@@ -75,58 +89,61 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
   }
 
   Widget _getListView() {
-    return ListView(
-      children: _procedures.map((e) {
-        return Card(
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context, 
-                MaterialPageRoute(
-                  builder: (context) => ProcedureScreen(
-                    tokenHub: widget.tokenHub, 
-                    procedure: e,
+    return RefreshIndicator(
+      onRefresh: _getProcedures,
+      child: ListView(
+        children: _procedures.map((e) {
+          return Card(
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (context) => ProcedureScreen(
+                      tokenHub: widget.tokenHub, 
+                      procedure: e,
+                    )
                   )
-                )
-              );
-            },
-            child: Hero(
-              tag: e.id,
-              child: Container(
-                padding: EdgeInsets.all(5),
-                margin: EdgeInsets.all(10),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          e.description, 
-                          style: TextStyle(
-                            fontSize: 18
+                );
+              },
+              child: Hero(
+                tag: e.id,
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  margin: EdgeInsets.all(10),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            e.description, 
+                            style: TextStyle(
+                              fontSize: 18
+                            ),
                           ),
-                        ),
-                        Icon(Icons.arrow_forward_ios),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${NumberFormat.currency(symbol: '\$').format(e.price)}', 
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold
+                          Icon(Icons.arrow_forward_ios),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${NumberFormat.currency(symbol: '\$').format(e.price)}', 
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 

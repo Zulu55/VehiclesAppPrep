@@ -161,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login() async {
+  void _login() {
     setState(() {
       _passwordShow = false;
     });
@@ -169,7 +169,37 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_validateFields()) {
       return;
     }
+    _doLogin();
+ }
 
+  bool _validateFields() {
+    bool isValid = true;
+
+    if (_email.isEmpty) {
+      _emailShowError = true;
+      _emailError = 'Debes ingresar tu correo.';
+      isValid = false;
+    } else if (!EmailValidator.validate(_email)){
+      _emailShowError = true;
+      _emailError = 'Debes ingresar un correo válido.';
+      isValid = false;
+    } else {  
+      _emailShowError = false;
+    }
+
+    if (_password.isEmpty) {
+      _passwordShowError = true;
+      _passwordError = 'Debes ingresar tu contraseña.';
+      isValid = false;
+    } else {  
+      _passwordShowError = false;
+    }
+
+    setState(() { });
+    return isValid;
+  }
+
+  void _doLogin() async {
     setState(() {
       _showLoader = true;
     });
@@ -211,31 +241,4 @@ class _LoginScreenState extends State<LoginScreen> {
       )
     );
  }
-
-  bool _validateFields() {
-    bool isValid = true;
-
-    if (_email.isEmpty) {
-      _emailShowError = true;
-      _emailError = 'Debes ingresar tu correo.';
-      isValid = false;
-    } else if (!EmailValidator.validate(_email)){
-      _emailShowError = true;
-      _emailError = 'Debes ingresar un correo válido.';
-      isValid = false;
-    } else {  
-      _emailShowError = false;
-    }
-
-    if (_password.isEmpty) {
-      _passwordShowError = true;
-      _passwordError = 'Debes ingresar tu contraseña.';
-      isValid = false;
-    } else {  
-      _passwordShowError = false;
-    }
-
-    setState(() { });
-    return isValid;
-  }
 }

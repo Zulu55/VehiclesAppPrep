@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:vehicles_prep/components/loader_component.dart';
+import 'package:vehicles_prep/helpers/constans.dart';
 import 'package:vehicles_prep/hubs/procedure_hub.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
 
@@ -23,6 +29,8 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
   bool _priceShowError = false;  
   TextEditingController _priceController = TextEditingController();
 
+  bool _showLoader = false;
+
   @override
   void initState() {
     super.initState();
@@ -38,11 +46,16 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
       appBar: AppBar(
         title: Text(widget.procedure.id == 0 ? "Nuevo Procedimiento" : widget.procedure.description),
       ),
-      body: Column(
+      body: Stack(
         children: <Widget>[
-          _showDescription(),
-          _showPrice(),
-          _showButtons(),
+          Column(
+            children: <Widget>[
+              _showDescription(),
+              _showPrice(),
+              _showButtons(),
+            ],
+          ),
+          _showLoader ? LoaderComponent(text: 'Por favor espere...') : Container(),
         ],
       ),
     );
@@ -108,7 +121,7 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
                 ),
               ),
               child: Text('Guardar'),
-              onPressed: () { }, 
+              onPressed: () => _save(), 
             ),
           ),
           widget.procedure.id == 0 ? Container() : SizedBox(width: 10,),
@@ -128,5 +141,124 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
         ],
       ),
     );
+  }
+
+  void _save() {
+    if (!_validateFields()) {
+      return;
+    }
+
+    if (widget.procedure.id == 0) {
+      _addRecord();
+    } else {
+      _saveRecord();
+    }
+  }
+
+  bool _validateFields() {
+    bool isValid = true;
+
+    if (_description.isEmpty) {
+      _descriptionShowError = true;
+      _descriptionError = 'Debes ingresar una descripción.';
+      isValid = false;
+    } else {  
+      _descriptionShowError = false;
+    }
+
+    double price = double.parse(_price);
+    if (price <= 0) {
+      _priceShowError = true;
+      _priceError = 'Debes ingresar un precio mayor a cero.';
+      isValid = false;
+    } else {  
+      _priceShowError = false;
+    }
+
+    setState(() { });
+    return isValid;
+   }
+
+  void _saveRecord() async {
+    setState(() {
+      _showLoader = true;
+    });
+
+    Map<String, dynamic> request = {
+      'id' : widget.procedure.id,
+      'description' : _description,
+      'price': double.parse(_price)
+    };
+
+    var url = Uri.parse('${Constans.apiUrl}/api/Procedures/${widget.procedure.id}');
+    var response = await http.put(
+      url,
+      headers: {
+        'content-type' : 'application/json',
+        'accept' : 'application/json',
+        'authorization': 'bearer ${widget.tokenHub.token}',
+      }, 
+      body: jsonEncode(request)
+    );
+
+    setState(() {
+      _showLoader = false;
+    });
+
+    if (response.statusCode >= 400) {
+      String error = response.body;
+      await showAlertDialog(
+        context: context,
+        title: 'Error', 
+        message: error,
+        actions: <AlertDialogAction>[
+            AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );    
+      return;
+    }
+
+    Navigator.pop(context);
+  }
+
+  void _addRecord() async {
+    setState(() {
+      _showLoader = true;
+    });
+
+    Map<String, dynamic> request = {
+      'description' : _description,
+      'price': double.parse(_price)
+    };
+
+    var url = Uri.parse('${Constans.apiUrl}/api/Procedures');
+    var response = await http.post(
+      url,
+      headers: {
+        'content-type' : 'application/json',
+        'accept' : 'application/json',
+        'authorization': 'bearer ${widget.tokenHub.token}',
+      }, 
+      body: jsonEncode(request)
+    );
+
+    setState(() {
+      _showLoader = false;
+    });
+
+    if (response.statusCode >= 400) {
+      String error = response.body;
+      await showAlertDialog(
+        context: context,
+        title: 'Error', 
+        message: error,
+        actions: <AlertDialogAction>[
+            AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );    
+      return;
+    }
+
+    Navigator.pop(context);
   }
 }
