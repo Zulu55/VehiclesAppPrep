@@ -5,20 +5,20 @@ import 'package:http/http.dart' as http;
 
 import 'package:vehicles_prep/components/loader_component.dart';
 import 'package:vehicles_prep/helpers/constans.dart';
+import 'package:vehicles_prep/hubs/document_type.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
-import 'package:vehicles_prep/hubs/vehicle_type.dart';
 
-class VehicleTypeScreen extends StatefulWidget {
+class DocumentTypeScreen extends StatefulWidget {
   final TokenHub tokenHub;
-  final VehicleType vehicleType;
+  final DocumentType documentType;
 
-  VehicleTypeScreen({required this.tokenHub, required this.vehicleType});
+  DocumentTypeScreen({required this.tokenHub, required this.documentType});
 
   @override
-  _VehicleTypeScreenState createState() => _VehicleTypeScreenState();
+  _DocumentTypeScreenState createState() => _DocumentTypeScreenState();
 }
 
-class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
+class _DocumentTypeScreenState extends State<DocumentTypeScreen> {
   String _description = '';
   String _descriptionError = '';
   bool _descriptionShowError = false;  
@@ -29,7 +29,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
   @override
   void initState() {
     super.initState();
-    _description = widget.vehicleType.description;
+    _description = widget.documentType.description;
     _descriptionController.text = _description;
   }
 
@@ -38,7 +38,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.vehicleType.id == 0 ? "Nuevo Tipo de Vehiculo" : widget.vehicleType.description),
+        title: Text(widget.documentType.id == 0 ? "Nuevo Tipo de documento" : widget.documentType.description),
       ),
       body: Stack(
         children: <Widget>[
@@ -95,8 +95,8 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
               onPressed: () => _save(), 
             ),
           ),
-          widget.vehicleType.id == 0 ? Container() : SizedBox(width: 10,),
-          widget.vehicleType.id == 0 ? Container() : Expanded(
+          widget.documentType.id == 0 ? Container() : SizedBox(width: 10,),
+          widget.documentType.id == 0 ? Container() : Expanded(
             child: ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -119,7 +119,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       return;
     }
 
-    if (widget.vehicleType.id == 0) {
+    if (widget.documentType.id == 0) {
       _addRecord();
     } else {
       _saveRecord();
@@ -147,11 +147,11 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     });
 
     Map<String, dynamic> request = {
-      'id' : widget.vehicleType.id,
+      'id' : widget.documentType.id,
       'description' : _description,
     };
 
-    var url = Uri.parse('${Constans.apiUrl}/api/VehicleTypes/${widget.vehicleType.id}');
+    var url = Uri.parse('${Constans.apiUrl}/api/DocumentTypes/${widget.documentType.id}');
     var response = await http.put(
       url,
       headers: {
@@ -191,7 +191,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       'description' : _description,
     };
 
-    var url = Uri.parse('${Constans.apiUrl}/api/VehicleTypes');
+    var url = Uri.parse('${Constans.apiUrl}/api/DocumentTypes');
     var response = await http.post(
       url,
       headers: {
@@ -244,7 +244,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       _showLoader = true;
     });
 
-    var url = Uri.parse('${Constans.apiUrl}/api/VehicleTypes/${widget.vehicleType.id}');
+    var url = Uri.parse('${Constans.apiUrl}/api/DocumentTypes/${widget.documentType.id}');
     var response = await http.delete(
       url,
       headers: {

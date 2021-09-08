@@ -6,6 +6,7 @@ import 'package:vehicles_prep/screens/login_screen.dart';
 import 'package:vehicles_prep/screens/procedures_screen.dart';
 import 'package:vehicles_prep/screens/vehicle_types_screen.dart';
 import 'brands_screen.dart';
+import 'document_types_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final TokenHub tokenHub;
@@ -89,7 +90,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ListTile(
             leading: Icon(Icons.badge),
             title: const Text('Tipos de Documento'),
-            onTap: () { },
+            onTap: () { 
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => DocumentTypesScreen(tokenHub: widget.tokenHub,)
+                )
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.toys),
