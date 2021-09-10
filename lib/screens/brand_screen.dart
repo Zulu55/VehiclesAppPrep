@@ -1,11 +1,10 @@
-import 'dart:convert';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:vehicles_prep/components/loader_component.dart';
-import 'package:vehicles_prep/helpers/constans.dart';
+import 'package:vehicles_prep/helpers/api_Helper.dart';
 import 'package:vehicles_prep/hubs/brand.dart';
+import 'package:vehicles_prep/hubs/response.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
 
 class BrandScreen extends StatefulWidget {
@@ -32,7 +31,6 @@ class _BrandScreenState extends State<BrandScreen> {
     _description = widget.brand.description;
     _descriptionController.text = _description;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -151,27 +149,17 @@ class _BrandScreenState extends State<BrandScreen> {
       'description' : _description,
     };
 
-    var url = Uri.parse('${Constans.apiUrl}/api/Brands/${widget.brand.id}');
-    var response = await http.put(
-      url,
-      headers: {
-        'content-type' : 'application/json',
-        'accept' : 'application/json',
-        'authorization': 'bearer ${widget.tokenHub.token}',
-      }, 
-      body: jsonEncode(request)
-    );
+    Response response = await ApiHelper.put('/api/Brands/', widget.brand.id, request, widget.tokenHub.token);
 
     setState(() {
       _showLoader = false;
     });
 
-    if (response.statusCode >= 400) {
-      String error = response.body;
+    if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
         title: 'Error', 
-        message: error,
+        message: response.message,
         actions: <AlertDialogAction>[
             AlertDialogAction(key: null, label: 'Aceptar'),
         ]
@@ -191,27 +179,17 @@ class _BrandScreenState extends State<BrandScreen> {
       'description' : _description,
     };
 
-    var url = Uri.parse('${Constans.apiUrl}/api/Brands');
-    var response = await http.post(
-      url,
-      headers: {
-        'content-type' : 'application/json',
-        'accept' : 'application/json',
-        'authorization': 'bearer ${widget.tokenHub.token}',
-      }, 
-      body: jsonEncode(request)
-    );
+    Response response = await ApiHelper.post('/api/Brands/', request, widget.tokenHub.token);
 
     setState(() {
       _showLoader = false;
     });
 
-    if (response.statusCode >= 400) {
-      String error = response.body;
+    if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
         title: 'Error', 
-        message: error,
+        message: response.message,
         actions: <AlertDialogAction>[
             AlertDialogAction(key: null, label: 'Aceptar'),
         ]
@@ -244,26 +222,17 @@ class _BrandScreenState extends State<BrandScreen> {
       _showLoader = true;
     });
 
-    var url = Uri.parse('${Constans.apiUrl}/api/Brands/${widget.brand.id}');
-    var response = await http.delete(
-      url,
-      headers: {
-        'content-type' : 'application/json',
-        'accept' : 'application/json',
-        'authorization': 'bearer ${widget.tokenHub.token}',
-      }, 
-    );
+    Response response = await ApiHelper.delete('/api/Brands/', widget.brand.id, widget.tokenHub.token);
 
     setState(() {
       _showLoader = false;
     });
 
-    if (response.statusCode >= 400) {
-      String error = response.body;
+    if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
         title: 'Error', 
-        message: error,
+        message: response.message,
         actions: <AlertDialogAction>[
             AlertDialogAction(key: null, label: 'Aceptar'),
         ]
