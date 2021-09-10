@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 import 'package:vehicles_prep/components/loader_component.dart';
-import 'package:vehicles_prep/helpers/constans.dart';
+import 'package:vehicles_prep/helpers/api_Helper.dart';
 import 'package:vehicles_prep/hubs/procedure_hub.dart';
+import 'package:vehicles_prep/hubs/response.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
 import 'package:vehicles_prep/screens/procedure_screen.dart';
 
@@ -67,22 +66,21 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
   }
 
   Future<Null> _getProcedures() async {
-    var url = Uri.parse('${Constans.apiUrl}/api/Procedures');
-    var response = await http.get(
-      url,
-      headers: {
-        'content-type' : 'application/json',
-        'accept'       : 'application/json',
-        'authorization': 'bearer ${widget.tokenHub.token}',
-      }, 
-    );
+    setState(() {
+      _isLoading = true;
+    });
 
-    String body = response.body;
-    if (response.statusCode >= 400) {
+    Response response = await ApiHelper.getProcedures(widget.tokenHub.token);
+
+    setState(() {
+      _isLoading = false;
+    });
+    
+    if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
         title: 'Error', 
-        message: body,
+        message: response.message,
         actions: <AlertDialogAction>[
             AlertDialogAction(key: null, label: 'Aceptar'),
         ]
@@ -90,15 +88,7 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
       return;
     }
 
-    _procedures = [];
-    dynamic decodedJson = jsonDecode(body);
-    if (decodedJson != null) {
-      for (var item in decodedJson) {
-        _procedures.add(Procedure.fromJson(item));  
-      }
-    }
-    _isLoading = false;
-    setState(() { });
+    _procedures = response.result;
   }
 
   Widget _getListView() {

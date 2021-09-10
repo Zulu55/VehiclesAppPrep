@@ -1,11 +1,10 @@
-import 'dart:convert';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:vehicles_prep/components/loader_component.dart';
-import 'package:vehicles_prep/helpers/constans.dart';
+import 'package:vehicles_prep/helpers/api_Helper.dart';
 import 'package:vehicles_prep/hubs/brand.dart';
+import 'package:vehicles_prep/hubs/response.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
 import 'package:vehicles_prep/screens/brand_screen.dart';
 
@@ -66,22 +65,21 @@ class _BrandsScreenState extends State<BrandsScreen> {
   }
 
   Future<Null> _getBrands() async {
-    var url = Uri.parse('${Constans.apiUrl}/api/Brands');
-    var response = await http.get(
-      url,
-      headers: {
-        'content-type' : 'application/json',
-        'accept'       : 'application/json',
-        'authorization': 'bearer ${widget.tokenHub.token}',
-      }, 
-    );
+    setState(() {
+      _isLoading = true;
+    });
 
-    String body = response.body;
-    if (response.statusCode >= 400) {
+    Response response = await ApiHelper.getBrands(widget.tokenHub.token);
+
+    setState(() {
+      _isLoading = false;
+    });
+    
+    if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
         title: 'Error', 
-        message: body,
+        message: response.message,
         actions: <AlertDialogAction>[
             AlertDialogAction(key: null, label: 'Aceptar'),
         ]
@@ -89,15 +87,7 @@ class _BrandsScreenState extends State<BrandsScreen> {
       return;
     }
 
-    _brands = [];
-    dynamic decodedJson = jsonDecode(body);
-    if (decodedJson != null) {
-      for (var item in decodedJson) {
-        _brands.add(Brand.fromJson(item));  
-      }
-    }
-    _isLoading = false;
-    setState(() { });
+    _brands = response.result;
   }
 
   Widget _getListView() {
