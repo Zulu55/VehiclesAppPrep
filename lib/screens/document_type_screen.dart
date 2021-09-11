@@ -150,7 +150,7 @@ class _DocumentTypeScreenState extends State<DocumentTypeScreen> {
       'description' : _description,
     };
 
-    Response response = await ApiHelper.put('/api/DocumentTypes/', widget.documentType.id, request, widget.tokenHub.token);
+    Response response = await ApiHelper.put('/api/DocumentTypes/', widget.documentType.id.toString(), request, widget.tokenHub.token);
 
     setState(() {
       _showLoader = false;
@@ -223,7 +223,11 @@ class _DocumentTypeScreenState extends State<DocumentTypeScreen> {
       _showLoader = true;
     });
 
-    Response response = await ApiHelper.delete('/api/DocumentTypes/', widget.documentType.id, widget.tokenHub.token);
+    Response response = await ApiHelper.delete(
+      '/api/DocumentTypes/', 
+      widget.documentType.id.toString(), 
+      widget.tokenHub.token
+    );
 
     setState(() {
       _showLoader = false;

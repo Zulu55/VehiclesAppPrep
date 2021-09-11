@@ -145,7 +145,7 @@ class ApiHelper {
     return Response(isSuccess: true, result: list);
   }
 
-  static Future<Response> put(String controller, int id, Map<String, dynamic> request, String token) async {
+  static Future<Response> put(String controller, String id, Map<String, dynamic> request, String token) async {
     var url = Uri.parse('${Constans.apiUrl}$controller$id');
     var response = await http.put(
       url,
@@ -185,7 +185,7 @@ class ApiHelper {
     return Response(isSuccess: true);
   }
 
-  static Future<Response> delete(String controller, int id, String token) async {
+  static Future<Response> delete(String controller, String id, String token) async {
     var url = Uri.parse('${Constans.apiUrl}$controller$id');
     var response = await http.delete(
       url,

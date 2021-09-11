@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:vehicles_prep/components/loader_component.dart';
 import 'package:vehicles_prep/helpers/api_Helper.dart';
-import 'package:vehicles_prep/helpers/constans.dart';
 import 'package:vehicles_prep/hubs/document_type.dart';
-import 'package:vehicles_prep/hubs/procedure_hub.dart';
 import 'package:vehicles_prep/hubs/response.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
 import 'package:vehicles_prep/hubs/user.dart';
@@ -23,8 +20,6 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  bool _isLoading = false;
-
   String _firstName = '';
   String _firstNameError = '';
   bool _firstNameShowError = false;  
@@ -90,7 +85,7 @@ class _UserScreenState extends State<UserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.user.id == '' ? "Nuevo Usuario" : widget.user.fullName),
+        title: Text(widget.user.id.isEmpty ? "Nuevo Usuario" : widget.user.fullName),
       ),
       body: Stack(
         children: <Widget>[
@@ -98,32 +93,16 @@ class _UserScreenState extends State<UserScreen> {
             children: <Widget>[
               _showFirstName(),
               _showLastName(),
+              _showDocumentType(),
+              _showDocument(),
+              _showAddress(),
+              _showEmail(),
+              _showPhoneNumber(),
               _showButtons(),
             ],
           ),
           _showLoader ? LoaderComponent(text: 'Por favor espere...') : Container(),
         ],
-      ),
-    );
-  }
-
-  Widget _showLastName() {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: TextField(
-        controller: _lastNameController,
-        decoration: InputDecoration(
-          errorText: _lastNameShowError ? _lastNameError : null,
-          hintText: 'Ingresa apellidos del usuario...',
-          labelText: 'Apellidos',
-          suffixIcon: Icon(Icons.person),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))
-        ),
-        onChanged: (value) {
-          setState(() {
-            _lastName = value;
-          });
-        },
       ),
     );
   }
@@ -150,6 +129,118 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
+  Widget _showLastName() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        controller: _lastNameController,
+        decoration: InputDecoration(
+          errorText: _lastNameShowError ? _lastNameError : null,
+          hintText: 'Ingresa apellidos del usuario...',
+          labelText: 'Apellidos',
+          suffixIcon: Icon(Icons.person),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))
+        ),
+        onChanged: (value) {
+          setState(() {
+            _lastName = value;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _showDocumentType() {
+    return Container();
+  }
+
+  Widget _showDocument() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        controller: _documentController,
+        decoration: InputDecoration(
+          errorText: _documentShowError ? _documentError : null,
+          hintText: 'Ingresa documento del usuario...',
+          labelText: 'Documento',
+          suffixIcon: Icon(Icons.assignment_ind),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))
+        ),
+        onChanged: (value) {
+          setState(() {
+            _document = value;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _showAddress() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        keyboardType: TextInputType.streetAddress,
+        controller: _addressController,
+        decoration: InputDecoration(
+          errorText: _addressShowError ? _addressError : null,
+          hintText: 'Ingresa dirección del usuario...',
+          labelText: 'Dirección',
+          suffixIcon: Icon(Icons.home),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))
+        ),
+        onChanged: (value) {
+          setState(() {
+            _address = value;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _showEmail() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        keyboardType: TextInputType.emailAddress,
+        controller: _emailController,
+        decoration: InputDecoration(
+          errorText: _emailShowError ? _emailError : null,
+          hintText: 'Ingresa email del usuario...',
+          labelText: 'Email',
+          suffixIcon: Icon(Icons.email),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))
+        ),
+        onChanged: (value) {
+          setState(() {
+            _email = value;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _showPhoneNumber() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        keyboardType: TextInputType.phone,
+        controller: _phoneNumberController,
+        decoration: InputDecoration(
+          errorText: _phoneNumberShowError ? _phoneNumberError : null,
+          hintText: 'Ingresa teléfono del usuario...',
+          labelText: 'Teléfono',
+          suffixIcon: Icon(Icons.phone),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))
+        ),
+        onChanged: (value) {
+          setState(() {
+            _phoneNumber = value;
+          });
+        },
+      ),
+    );
+  }
+
   Widget _showButtons() {
     return Container(
       margin: EdgeInsets.all(10),
@@ -169,8 +260,8 @@ class _UserScreenState extends State<UserScreen> {
               onPressed: () => _save(), 
             ),
           ),
-          widget.procedure.id == 0 ? Container() : SizedBox(width: 10,),
-          widget.procedure.id == 0 ? Container() : Expanded(
+          widget.user.id.isEmpty ? Container() : SizedBox(width: 10,),
+          widget.user.id.isEmpty ? Container() : Expanded(
             child: ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -193,7 +284,7 @@ class _UserScreenState extends State<UserScreen> {
       return;
     }
 
-    if (widget.procedure.id == 0) {
+    if (widget.user.id == '') {
       _addRecord();
     } else {
       _saveRecord();
@@ -203,21 +294,56 @@ class _UserScreenState extends State<UserScreen> {
   bool _validateFields() {
     bool isValid = true;
 
-    if (_description.isEmpty) {
-      _descriptionShowError = true;
-      _descriptionError = 'Debes ingresar una descripción.';
+    if (_firstName.isEmpty) {
+      _firstNameShowError = true;
+      _firstNameError = 'Debes ingresar al menos un nombre.';
       isValid = false;
     } else {  
-      _descriptionShowError = false;
+      _firstNameShowError = false;
     }
 
-    double price = double.parse(_price);
-    if (price <= 0) {
-      _priceShowError = true;
-      _priceError = 'Debes ingresar un precio mayor a cero.';
+    if (_lastName.isEmpty) {
+      _lastNameShowError = true;
+      _lastNameError = 'Debes ingresar al menos un apellido.';
       isValid = false;
     } else {  
-      _priceShowError = false;
+      _lastNameShowError = false;
+    }
+
+    if (_document.isEmpty) {
+      _documentShowError = true;
+      _documentError = 'Debes ingresar el documento.';
+      isValid = false;
+    } else {  
+      _addressShowError = false;
+    }
+
+    if (_address.isEmpty) {
+      _addressShowError = true;
+      _addressError = 'Debes ingresar la dirección.';
+      isValid = false;
+    } else {  
+      _addressShowError = false;
+    }
+
+    if (_email.isEmpty) {
+      _emailShowError = true;
+      _emailError = 'Debes ingresar un email.';
+      isValid = false;
+    } else if (!EmailValidator.validate(_email)){
+      _emailShowError = true;
+      _emailError = 'Debes ingresar un correo válido.';
+      isValid = false;
+    } else {  
+      _emailShowError = false;
+    }
+
+    if (_phoneNumber.isEmpty) {
+      _phoneNumberShowError = true;
+      _phoneNumberError = 'Debes ingresar la dirección.';
+      isValid = false;
+    } else {  
+      _phoneNumberShowError = false;
     }
 
     setState(() { });
@@ -229,33 +355,36 @@ class _UserScreenState extends State<UserScreen> {
       _showLoader = true;
     });
 
+    //TODO: pending to change the document type and the image
     Map<String, dynamic> request = {
-      'id' : widget.procedure.id,
-      'description' : _description,
-      'price': double.parse(_price)
+      'id' : widget.user.id,
+      'firstName' : _firstName,
+      'lastName' : _lastName,
+      'documentType' : 1, 
+      'document' : _document,
+      'address' : _address,
+      'userType' : 1,
+      'userName' : _email,
+      'email' : _email,
+      'phoneNumber' : _phoneNumber,
     };
 
-    var url = Uri.parse('${Constans.apiUrl}/api/Procedures/${widget.procedure.id}');
-    var response = await http.put(
-      url,
-      headers: {
-        'content-type' : 'application/json',
-        'accept' : 'application/json',
-        'authorization': 'bearer ${widget.tokenHub.token}',
-      }, 
-      body: jsonEncode(request)
+    Response response = await ApiHelper.put(
+      '/api/Users/', 
+      widget.user.id, 
+      request, 
+      widget.tokenHub.token
     );
 
     setState(() {
       _showLoader = false;
     });
 
-    if (response.statusCode >= 400) {
-      String error = response.body;
+    if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
         title: 'Error', 
-        message: error,
+        message: response.message,
         actions: <AlertDialogAction>[
             AlertDialogAction(key: null, label: 'Aceptar'),
         ]
@@ -271,32 +400,30 @@ class _UserScreenState extends State<UserScreen> {
       _showLoader = true;
     });
 
+    //TODO: pending to change the document type and the image
     Map<String, dynamic> request = {
-      'description' : _description,
-      'price': double.parse(_price)
+      'firstName' : _firstName,
+      'lastName' : _lastName,
+      'documentType' : 1, 
+      'document' : _document,
+      'address' : _address,
+      'userType' : 1,
+      'userName' : _email,
+      'email' : _email,
+      'phoneNumber' : _phoneNumber,
     };
 
-    var url = Uri.parse('${Constans.apiUrl}/api/Procedures');
-    var response = await http.post(
-      url,
-      headers: {
-        'content-type' : 'application/json',
-        'accept' : 'application/json',
-        'authorization': 'bearer ${widget.tokenHub.token}',
-      }, 
-      body: jsonEncode(request)
-    );
+    Response response = await ApiHelper.post('/api/Users/', request, widget.tokenHub.token);
 
     setState(() {
       _showLoader = false;
     });
 
-    if (response.statusCode >= 400) {
-      String error = response.body;
+    if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
         title: 'Error', 
-        message: error,
+        message: response.message,
         actions: <AlertDialogAction>[
             AlertDialogAction(key: null, label: 'Aceptar'),
         ]
@@ -329,26 +456,17 @@ class _UserScreenState extends State<UserScreen> {
       _showLoader = true;
     });
 
-    var url = Uri.parse('${Constans.apiUrl}/api/Procedures/${widget.procedure.id}');
-    var response = await http.delete(
-      url,
-      headers: {
-        'content-type' : 'application/json',
-        'accept' : 'application/json',
-        'authorization': 'bearer ${widget.tokenHub.token}',
-      }, 
-    );
+    Response response = await ApiHelper.delete('/api/Users/', widget.user.id, widget.tokenHub.token);
 
     setState(() {
       _showLoader = false;
     });
 
-    if (response.statusCode >= 400) {
-      String error = response.body;
+    if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
         title: 'Error', 
-        message: error,
+        message: response.message,
         actions: <AlertDialogAction>[
             AlertDialogAction(key: null, label: 'Aceptar'),
         ]
@@ -361,13 +479,13 @@ class _UserScreenState extends State<UserScreen> {
 
   Future<Null> _getDocumentTypes() async {
     setState(() {
-      _isLoading = true;
+      _showLoader = true;
     });
 
     Response response = await ApiHelper.getDocumentTypes(widget.tokenHub.token);
 
     setState(() {
-      _isLoading = false;
+      _showLoader = false;
     });
     
     if (!response.isSuccess) {
@@ -384,5 +502,4 @@ class _UserScreenState extends State<UserScreen> {
 
     _documentTypes = response.result;
   }
-
 }

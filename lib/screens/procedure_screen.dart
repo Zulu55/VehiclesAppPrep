@@ -189,7 +189,11 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
       'price': double.parse(_price)
     };
 
-    Response response = await ApiHelper.put('/api/Procedures/', widget.procedure.id, request, widget.tokenHub.token);
+    Response response = await ApiHelper.put(
+      '/api/Procedures/', 
+      widget.procedure.id.toString(), 
+      request, widget.tokenHub.token
+    );
 
     setState(() {
       _showLoader = false;
@@ -263,7 +267,11 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
       _showLoader = true;
     });
 
-    Response response = await ApiHelper.delete('/api/Procedures/', widget.procedure.id, widget.tokenHub.token);
+    Response response = await ApiHelper.delete(
+      '/api/Procedures/', 
+      widget.procedure.id.toString(), 
+      widget.tokenHub.token
+    );
 
     setState(() {
       _showLoader = false;

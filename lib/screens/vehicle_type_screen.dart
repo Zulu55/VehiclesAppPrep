@@ -150,7 +150,11 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       'description' : _description,
     };
 
-    Response response = await ApiHelper.put('/api/VehicleTypes/', widget.vehicleType.id, request, widget.tokenHub.token);
+    Response response = await ApiHelper.put(
+      '/api/VehicleTypes/', 
+      widget.vehicleType.id.toString(), 
+      request, widget.tokenHub.token
+    );
 
     setState(() {
       _showLoader = false;
@@ -223,7 +227,11 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       _showLoader = true;
     });
 
-    Response response = await ApiHelper.delete('/api/VehicleTypes/', widget.vehicleType.id, widget.tokenHub.token);
+    Response response = await ApiHelper.delete(
+      '/api/VehicleTypes/', 
+      widget.vehicleType.id.toString(), 
+      widget.tokenHub.token
+    );
 
     setState(() {
       _showLoader = false;
