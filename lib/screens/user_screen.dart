@@ -89,17 +89,19 @@ class _UserScreenState extends State<UserScreen> {
       ),
       body: Stack(
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              _showFirstName(),
-              _showLastName(),
-              _showDocumentType(),
-              _showDocument(),
-              _showAddress(),
-              _showEmail(),
-              _showPhoneNumber(),
-              _showButtons(),
-            ],
+          SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                _showFirstName(),
+                _showLastName(),
+                _showDocumentType(),
+                _showDocument(),
+                _showAddress(),
+                _showEmail(),
+                _showPhoneNumber(),
+                _showButtons(),
+              ],
+            ),
           ),
           _showLoader ? LoaderComponent(text: 'Por favor espere...') : Container(),
         ],
