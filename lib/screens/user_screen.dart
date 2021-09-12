@@ -92,6 +92,7 @@ class _UserScreenState extends State<UserScreen> {
           SingleChildScrollView(
             child: Column(
               children: <Widget>[
+                _showPhoto(),
                 _showFirstName(),
                 _showLastName(),
                 _showDocumentType(),
@@ -105,6 +106,22 @@ class _UserScreenState extends State<UserScreen> {
           ),
           _showLoader ? LoaderComponent(text: 'Por favor espere...') : Container(),
         ],
+      ),
+    );
+  }
+
+  Widget _showPhoto() {
+    return Container(
+      margin: EdgeInsets.only(top: 10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: FadeInImage(
+          placeholder: AssetImage('assets/vehicles_logo.png'), 
+          image: NetworkImage(widget.user.imageFullPath),
+          height: 200,
+          width: 200,
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }

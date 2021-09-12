@@ -1,15 +1,12 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:vehicles_prep/components/loader_component.dart';
 import 'package:vehicles_prep/helpers/api_Helper.dart';
 import 'package:vehicles_prep/hubs/document_type.dart';
-import 'package:vehicles_prep/hubs/procedure_hub.dart';
 import 'package:vehicles_prep/hubs/response.dart';
 import 'package:vehicles_prep/hubs/token_hub.dart';
 import 'package:vehicles_prep/hubs/user.dart';
-import 'package:vehicles_prep/screens/procedure_screen.dart';
 import 'package:vehicles_prep/screens/user_screen.dart';
 
 class UsersScreen extends StatefulWidget {
@@ -133,31 +130,41 @@ class _UsersScreenState extends State<UsersScreen> {
                 child: Container(
                   padding: EdgeInsets.all(5),
                   margin: EdgeInsets.all(10),
-                  child: Column(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(50),
+                        child: FadeInImage(
+                          placeholder: AssetImage('assets/vehicles_logo.png'), 
+                          image: NetworkImage(e.imageFullPath),
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Column(
                         children: [
                           Text(
-                            e.fullName, 
+                            '${e.fullName}', 
                             style: TextStyle(
                               fontSize: 18
                             ),
                           ),
-                          Icon(Icons.arrow_forward_ios),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
+                          SizedBox(height: 5,),
                           Text(
                             '${e.email}', 
                             style: TextStyle(
                               fontWeight: FontWeight.bold
                             ),
                           ),
+                          SizedBox(height: 5,),
+                          Text(
+                            'Teléfono: ${e.phoneNumber}', 
+                          ),
                         ],
                       ),
+                      Icon(Icons.arrow_forward_ios, size: 30,),
                     ],
                   ),
                 ),
